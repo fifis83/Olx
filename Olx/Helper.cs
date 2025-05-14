@@ -12,7 +12,7 @@ namespace Olx
         
         public string Login, Password;
         public DateTime OldestDateAllowed;
-        public double MinPrice, MaxPrice;
+        public int MinPrice, MaxPrice;
         public string[] Blacklist;
         
     }
@@ -25,23 +25,23 @@ namespace Olx
             Console.WriteLine("Wyszukiwarka Thinkpad");
             Console.WriteLine("Jaka minimalna cena?:");
 
-            double minPrice = double.Parse(Console.ReadLine());
-            while (minPrice < 0 && minPrice * 100 % 1 != 0)
+            int minPrice = int.Parse(Console.ReadLine());
+            while (minPrice < 0 && minPrice % 1 != 0)
             {
                 Console.WriteLine("Podaj poprawną minimalną cenę:");
-                minPrice = double.Parse(Console.ReadLine());
+                minPrice = int.Parse(Console.ReadLine());
             }
           
          
             userParameters.MinPrice = minPrice;
             Console.WriteLine("Jaka maksymalna cena?:");
 
-            double maxPrice = double.Parse(Console.ReadLine());
+            int maxPrice = int.Parse(Console.ReadLine());
 
-            while (maxPrice < 0 && maxPrice * 100 % 1 != 0 && maxPrice<minPrice )
+            while (maxPrice < 0 && maxPrice % 1 != 0 && maxPrice<minPrice )
             {
                 Console.WriteLine("Podaj poprawną maksymalną cenę:");
-                maxPrice = double.Parse(Console.ReadLine());
+                maxPrice = int.Parse(Console.ReadLine());
             }
             userParameters.MaxPrice = maxPrice;
 
@@ -74,6 +74,8 @@ namespace Olx
                 Console.WriteLine("Podano błędny dzień jeszcze raz");
                 day = int.Parse(Console.ReadLine());
             }
+
+       
             DateTime oldestDateAllowed = new DateTime(year, month, day);
             userParameters.OldestDateAllowed = oldestDateAllowed;
 
