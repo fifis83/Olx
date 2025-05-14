@@ -11,10 +11,14 @@ namespace Olx
     {
         
         public string Login, Password;
+        
+        
+    }
+    struct SearchParameters
+    {
         public DateTime OldestDateAllowed;
         public int MinPrice, MaxPrice;
         public string[] Blacklist;
-        
     }
     internal class Helper
     {
@@ -22,6 +26,7 @@ namespace Olx
         static UserParameters InputValues()
         {
             UserParameters userParameters = new UserParameters();
+            SearchParameters searchParameters = new SearchParameters();
             Console.WriteLine("Wyszukiwarka Thinkpad");
             Console.WriteLine("Jaka minimalna cena?:");
 
@@ -33,7 +38,7 @@ namespace Olx
             }
           
          
-            userParameters.MinPrice = minPrice;
+            searchParameters.MinPrice = minPrice;
             Console.WriteLine("Jaka maksymalna cena?:");
 
             int maxPrice = int.Parse(Console.ReadLine());
@@ -43,11 +48,11 @@ namespace Olx
                 Console.WriteLine("Podaj poprawną maksymalną cenę:");
                 maxPrice = int.Parse(Console.ReadLine());
             }
-            userParameters.MaxPrice = maxPrice;
+            searchParameters.MaxPrice = maxPrice;
 
             Console.WriteLine("Jakie słowa chcesz omijać?: (prosze wstawić ',' po każdym słowie");
             string[] blacklist = Console.ReadLine().Split(',');
-            userParameters.Blacklist = blacklist;
+            searchParameters.Blacklist = blacklist;
 
 
             Console.WriteLine("Jaka najstarsza data? ");
@@ -77,7 +82,7 @@ namespace Olx
 
        
             DateTime oldestDateAllowed = new DateTime(year, month, day);
-            userParameters.OldestDateAllowed = oldestDateAllowed;
+            searchParameters.OldestDateAllowed = oldestDateAllowed;
 
             Console.WriteLine("Podaj Login:");
             string login = Console.ReadLine();
