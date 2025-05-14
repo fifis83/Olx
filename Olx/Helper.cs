@@ -120,5 +120,24 @@ namespace Olx
             driver.FindElement(By.XPath(Dicts.Elements["LoginButton"])).Click();
         }
 
+
+        static public void getLinkAndPrice(IWebDriver driver, SearchParameters searchParameters)
+        {
+            driver.Navigate().GoToUrl(CreateURL(searchParameters));
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
+
+            string[] arrayUrls;
+            string[] arrayPrices;
+
+          
+            var input = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["ResultURL"])); });
+            
+            var price = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["ResultPrices"])); });
+        }
+       /* static public bool checkIfDateIsGood(SearchParameters searchParameters)
+        {
+
+        }*/
+        
     }
 }
