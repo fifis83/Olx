@@ -111,18 +111,18 @@ namespace Olx
 
         static public string CreateURL(SearchParameters searchParams)
         {
-            string url = "https://www.olx.pl/oferty/q-thinkpad-t61/?search[order]=created_at:desc&search[filter_foloat_price:from]=" + searchParams.MinPrice + "&search[filter_float_price:to]=" + searchParams.MaxPrice;
+            string url = "https://www.olx.pl/oferty/q-thinkpad-t61/?search[order]=created_at:desc&search[filter_float_price:from]=" + searchParams.MinPrice + "&search[filter_float_price:to]=" + searchParams.MaxPrice;
             return url;
         }
 
         static public bool Login(IWebDriver driver, UserParameters userParameters)
         {
-            driver.Navigate().GoToUrl(Dicts.Pages["MainPage"]);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+            driver.Navigate().GoToUrl("https://login.olx.pl/?cc=eyJjYyI6MSwiZ3JvdXBzIjoiQzAwMDE6MSxDMDAwMjoxLEMwMDAzOjEsQzAwMDQ6MSxnYWQ6MSJ9&client_id=6j7elk01p32o648o1io8lvhhab&code_challenge=kchix2JsbwlYXfl0z3kphmUHfpmKwFtkIj3sc2LBoOA&code_challenge_method=S256&lang=pl&redirect_uri=https%3A%2F%2Fwww.olx.pl%2Fd%2Fcallback%2F&st=eyJzbCI6IjE5NmQwMDYxZmU3eDY0M2MwMDYzIiwicyI6IjE5NmQwMDYxZmU3eDY0M2MwMDYzIn0%3D&state=SVp0YkRBaVZrMnVjUXVJOXNYeVUyNmJmYzFhbFRUc1ppREdFV0tYLVFadg%3D%3D");
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
 
-            wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["CookiesAccept"])); }).Click();
+            //wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["CookiesAccept"])); }).Click();
 
-            wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["Login"])); }).Click();
+            //wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["Login"])); }).Click();
 
             var input = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["UsernameInput"])); });
             input.SendKeys(userParameters.Login);
@@ -132,15 +132,19 @@ namespace Olx
 
             driver.FindElement(By.XPath(Dicts.Elements["LoginButton"])).Click();
         
+            driver.Navigate().GoToUrl(Dicts.Pages["MainPage"]);
             return true;
         }
 
 
         static public List<string[]> GetResults(IWebDriver driver, SearchParameters searchParameters)
         {
+            Console.WriteLine(CreateURL(searchParameters));
             driver.Navigate().GoToUrl(CreateURL(searchParameters));
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
 
+            //wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["CookiesAccept"])); }).Click();
+            
             string urlXpath, priceXpath;
             GetBlacklistXpath(searchParameters.Blacklist, out urlXpath, out priceXpath);
 
@@ -181,7 +185,7 @@ namespace Olx
             }
 
             priceXpath = urlXpath + "]//following::p";
-            urlXpath = urlXpath + "]//following::a";
+            urlXpath = urlXpath + "]//parent::a";
 
         }
 
@@ -189,11 +193,13 @@ namespace Olx
         {
             IWebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver();
             driver.Navigate().GoToUrl(url);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["CookiesAccept"])); }).Click();
             string description = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["ResultDescription"])); }).Text;
             driver.Quit();
             return description;
         }
+
 
         /* static public bool checkIfDateIsGood(SearchParameters searchParameters)
          {

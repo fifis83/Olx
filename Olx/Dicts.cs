@@ -18,7 +18,7 @@ namespace Olx
             { "ResultURL","//h4[@class=\"css-1g61gc2\"]/parent::a"},
             { "ResultPrices","//p[@data-testid=\"ad-price\"]"},
             { "ResultConditions","//span[@class=\"css-iudov9\"]"},
-            { "ResultDescription","//div[@class=\"19duwlz\"]"},
+            { "ResultDescription","//div[@class=\"css-19duwlz\"]"},
             { "ResultDate","//p[@data-testid=\"location-date\"]"},
             { "NextPageButton","//a[@data-testid=\"pagination-forward\"]"}
         };
