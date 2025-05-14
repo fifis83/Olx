@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenQA.Selenium;
+using OpenQA.Selenium.DevTools.V134.Input;
+using OpenQA.Selenium.Support.UI;
 
 namespace Olx
 {
@@ -18,7 +21,7 @@ namespace Olx
     internal class Helper
     {
 
-        static UserParameters InputValues()
+        static public UserParameters InputValues()
         {
             UserParameters userParameters = new UserParameters();
             Console.WriteLine("Wyszukiwarka Thinkpad");
@@ -52,6 +55,28 @@ namespace Olx
             return userParameters;
 
         }
-       
+        
+        static public string CreateURL(UserParameters usrParams)
+        {
+            string url = "https://www.olx.pl/oferty/q-thinkpad-t61/?search[order]=created_at:desc&search[filter_foloat_price:from]="+usrParams.MinPrice+"&search[filter_float_price:to]="+usrParams.MaxPrice;
+            return url;
+        }
+
+        static public void Login(IWebDriver driver,UserParameters userParameters)
+        {
+            driver.Navigate().GoToUrl(Dicts.Pages["MainPage"]);
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
+            
+            wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["Login"])); }).Click();
+            
+            var input = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["UsernameInput"])); });
+            input.SendKeys(userParameters.Login);
+            
+            input = driver.FindElement(By.XPath(Dicts.Elements["PasswordInput"]));
+            input.SendKeys(userParameters.Password);
+
+            driver.FindElement(By.XPath(Dicts.Elements["LoginButton"])).Click();
+        }
+
     }
 }
