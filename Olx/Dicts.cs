@@ -19,6 +19,7 @@ namespace Olx
             { "ResultPrices","//p[@data-testid=\"ad-price\"]"},
             { "ResultConditions","//span[@class=\"css-iudov9\"]"},
             { "ResultDescription","//div[@class=\"19duwlz\"]"},
+            { "ResultDate","//p[@data-testid=\"location-date\"]"},
             { "NextPageButton","//a[@data-testid=\"pagination-forward\"]"}
         };
         static public Dictionary<string, string> Pages = new Dictionary<string, string>()
