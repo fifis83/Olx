@@ -98,9 +98,9 @@ namespace Olx
 
         }
         
-        static public string CreateURL(UserParameters usrParams)
+        static public string CreateURL(SearchParameters searchParams)
         {
-            string url = "https://www.olx.pl/oferty/q-thinkpad-t61/?search[order]=created_at:desc&search[filter_foloat_price:from]="+usrParams.MinPrice+"&search[filter_float_price:to]="+usrParams.MaxPrice;
+            string url = "https://www.olx.pl/oferty/q-thinkpad-t61/?search[order]=created_at:desc&search[filter_foloat_price:from]="+searchParams.MinPrice+"&search[filter_float_price:to]="+searchParams.MaxPrice;
             return url;
         }
 
