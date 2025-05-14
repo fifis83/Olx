@@ -9,7 +9,7 @@ namespace Olx
     struct UserParameters
     {
         
-        public string Phrase, Login, Password;
+        public string Login, Password;
         public DateTime OldestDateAllowed;
         public float MinPrice, MaxPrice;
         public string[] Blacklist;
@@ -21,9 +21,7 @@ namespace Olx
         static UserParameters InputValues()
         {
             UserParameters userParameters = new UserParameters();
-            Console.WriteLine("Czego szukasz?:");
-            string phrase = Console.ReadLine();
-            userParameters.Phrase = phrase;
+            Console.WriteLine("Wyszukiwarka Thinkpad");
             Console.WriteLine("Jaka minimalna cena?:");
             float minPrice = float.Parse(Console.ReadLine());
             userParameters.MinPrice = minPrice;
