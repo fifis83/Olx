@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace Olx
         
         public string Login, Password;
         public DateTime OldestDateAllowed;
-        public float MinPrice, MaxPrice;
+        public double MinPrice, MaxPrice;
         public string[] Blacklist;
         
     }
@@ -23,22 +24,56 @@ namespace Olx
             UserParameters userParameters = new UserParameters();
             Console.WriteLine("Wyszukiwarka Thinkpad");
             Console.WriteLine("Jaka minimalna cena?:");
-            float minPrice = float.Parse(Console.ReadLine());
+
+            double minPrice = double.Parse(Console.ReadLine());
+            while (minPrice < 0 && minPrice * 100 % 1 != 0)
+            {
+                Console.WriteLine("Podaj poprawną minimalną cenę:");
+                minPrice = double.Parse(Console.ReadLine());
+            }
+          
+         
             userParameters.MinPrice = minPrice;
             Console.WriteLine("Jaka maksymalna cena?:");
-            float maxPrice = float.Parse(Console.ReadLine());
+
+            double maxPrice = double.Parse(Console.ReadLine());
+
+            while (maxPrice < 0 && maxPrice * 100 % 1 != 0 && maxPrice<minPrice )
+            {
+                Console.WriteLine("Podaj poprawną maksymalną cenę:");
+                maxPrice = double.Parse(Console.ReadLine());
+            }
             userParameters.MaxPrice = maxPrice;
+
             Console.WriteLine("Jakie słowa chcesz omijać?: (prosze wstawić ',' po każdym słowie");
             string[] blacklist = Console.ReadLine().Split(',');
             userParameters.Blacklist = blacklist;
 
+
             Console.WriteLine("Jaka najstarsza data? ");
             Console.WriteLine("Podaj rok:");
             int year = int.Parse(Console.ReadLine());
+            if (int.TryParse(Console.ReadLine(), out  year) == false)
+            {
+                Console.WriteLine("Podano błędny rok jeszcze raz");
+                year = int.Parse(Console.ReadLine());
+            }
+           
             Console.WriteLine("Podaj miesiąc:");
             int month = int.Parse(Console.ReadLine());
+            if (int.TryParse(Console.ReadLine(), out  month) == false)
+            {
+                Console.WriteLine("Podano błędny miesiąc jeszcze raz");
+                month = int.Parse(Console.ReadLine());
+            }
+           
             Console.WriteLine("Podaj dzień:");
             int day = int.Parse(Console.ReadLine());
+            if (int.TryParse(Console.ReadLine(), out  day) == false)
+            {
+                Console.WriteLine("Podano błędny dzień jeszcze raz");
+                day = int.Parse(Console.ReadLine());
+            }
             DateTime oldestDateAllowed = new DateTime(year, month, day);
             userParameters.OldestDateAllowed = oldestDateAllowed;
 
