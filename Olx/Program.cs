@@ -6,9 +6,23 @@ namespace Olx
     {
         public static void Main(string[] args)
         {
-            UserParameters userParameters = Helper.InputValues();
+            SearchParameters searchParameters;
+            UserParameters userParameters = Helper.InputValuesDebug(out searchParameters);
 
             WebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver();
+        
+            Helper.Login(driver, userParameters);
+            var results = Helper.GetResults(driver, searchParameters);
+
+            foreach (var result in results)
+            {
+                Console.WriteLine("URL: " + result[0]);
+                Console.WriteLine("Price: " + result[1]);
+                Console.WriteLine("Description: " + result[2]);
+                Console.WriteLine();
+            }
+
+            driver.Quit();
         }
     }
 }

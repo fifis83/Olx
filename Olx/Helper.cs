@@ -12,10 +12,10 @@ namespace Olx
 {
     struct UserParameters
     {
-        
+
         public string Login, Password;
-        
-        
+
+
     }
     struct SearchParameters
     {
@@ -25,11 +25,25 @@ namespace Olx
     }
     internal class Helper
     {
+        static public UserParameters InputValuesDebug(out SearchParameters searchParameters)
+        {
+            searchParameters = new SearchParameters() {
+                OldestDateAllowed = new DateTime(2024, 1, 1),
+                MinPrice = 20,
+                MaxPrice = 200,
+                Blacklist = new string[] { "test", "części" }
+            };
+            return new UserParameters()
+            {
+                Login = "fifi.serbin@gmail.com",
+                Password = "Kukuryku83"
+            };
+        }
 
-        static public UserParameters InputValues()
+        static public UserParameters InputValues(out SearchParameters searchParameters)
         {
             UserParameters userParameters = new UserParameters();
-            SearchParameters searchParameters = new SearchParameters();
+            searchParameters = new SearchParameters();
             Console.WriteLine("Wyszukiwarka Thinkpad");
             Console.WriteLine("Jaka minimalna cena?:");
 
@@ -39,14 +53,14 @@ namespace Olx
                 Console.WriteLine("Podaj poprawną minimalną cenę:");
                 minPrice = int.Parse(Console.ReadLine());
             }
-          
-         
+
+
             searchParameters.MinPrice = minPrice;
             Console.WriteLine("Jaka maksymalna cena?:");
 
             int maxPrice = int.Parse(Console.ReadLine());
 
-            while (maxPrice < 0 && maxPrice % 1 != 0 && maxPrice<minPrice )
+            while (maxPrice < 0 && maxPrice % 1 != 0 && maxPrice < minPrice)
             {
                 Console.WriteLine("Podaj poprawną maksymalną cenę:");
                 maxPrice = int.Parse(Console.ReadLine());
@@ -60,30 +74,27 @@ namespace Olx
 
             Console.WriteLine("Jaka najstarsza data? ");
             Console.WriteLine("Podaj rok:");
-            int year = int.Parse(Console.ReadLine());
-            if (int.TryParse(Console.ReadLine(), out  year) == false)
+            int year;
+            while (int.TryParse(Console.ReadLine(), out year) == false)
             {
                 Console.WriteLine("Podano błędny rok jeszcze raz");
-                year = int.Parse(Console.ReadLine());
-            }
-           
-            Console.WriteLine("Podaj miesiąc:");
-            int month = int.Parse(Console.ReadLine());
-            if (int.TryParse(Console.ReadLine(), out  month) == false)
-            {
-                Console.WriteLine("Podano błędny miesiąc jeszcze raz");
-                month = int.Parse(Console.ReadLine());
-            }
-           
-            Console.WriteLine("Podaj dzień:");
-            int day = int.Parse(Console.ReadLine());
-            if (int.TryParse(Console.ReadLine(), out  day) == false)
-            {
-                Console.WriteLine("Podano błędny dzień jeszcze raz");
-                day = int.Parse(Console.ReadLine());
             }
 
-       
+            Console.WriteLine("Podaj miesiąc:");
+            int month;
+            while (int.TryParse(Console.ReadLine(), out month) == false)
+            {
+                Console.WriteLine("Podano błędny miesiąc jeszcze raz");
+            }
+
+            Console.WriteLine("Podaj dzień:");
+            int day;
+            while (int.TryParse(Console.ReadLine(), out day) == false)
+            {
+                Console.WriteLine("Podano błędny dzień jeszcze raz");
+            }
+
+
             DateTime oldestDateAllowed = new DateTime(year, month, day);
             searchParameters.OldestDateAllowed = oldestDateAllowed;
 
@@ -97,47 +108,97 @@ namespace Olx
             return userParameters;
 
         }
-        
+
         static public string CreateURL(SearchParameters searchParams)
         {
-            string url = "https://www.olx.pl/oferty/q-thinkpad-t61/?search[order]=created_at:desc&search[filter_foloat_price:from]="+searchParams.MinPrice+"&search[filter_float_price:to]="+searchParams.MaxPrice;
+            string url = "https://www.olx.pl/oferty/q-thinkpad-t61/?search[order]=created_at:desc&search[filter_foloat_price:from]=" + searchParams.MinPrice + "&search[filter_float_price:to]=" + searchParams.MaxPrice;
             return url;
         }
 
-        static public void Login(IWebDriver driver,UserParameters userParameters)
+        static public bool Login(IWebDriver driver, UserParameters userParameters)
         {
             driver.Navigate().GoToUrl(Dicts.Pages["MainPage"]);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
-            
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["CookiesAccept"])); }).Click();
+
             wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["Login"])); }).Click();
-            
+
             var input = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["UsernameInput"])); });
             input.SendKeys(userParameters.Login);
-            
+
             input = driver.FindElement(By.XPath(Dicts.Elements["PasswordInput"]));
             input.SendKeys(userParameters.Password);
 
             driver.FindElement(By.XPath(Dicts.Elements["LoginButton"])).Click();
+        
+            return true;
         }
 
 
-        static public void getLinkAndPrice(IWebDriver driver, SearchParameters searchParameters)
+        static public List<string[]> GetResults(IWebDriver driver, SearchParameters searchParameters)
         {
             driver.Navigate().GoToUrl(CreateURL(searchParameters));
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
 
-            string[] arrayUrls;
-            string[] arrayPrices;
+            string urlXpath, priceXpath;
+            GetBlacklistXpath(searchParameters.Blacklist, out urlXpath, out priceXpath);
 
-          
-            var input = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["ResultURL"])); });
-            
-            var price = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["ResultPrices"])); });
+            List<string[]> results = new List<string[]>();
+
+            while (true)
+            {
+
+                var urls = wait.Until((d) => { return d.FindElements(By.XPath(urlXpath)); });
+
+                var prices = driver.FindElements(By.XPath(priceXpath));
+
+
+                for (int i = 0; i < urls.Count; i++)
+                {
+                    string url = urls[i].GetAttribute("href");
+                    string price = prices[i].Text;
+                    string desc = GetDescription(url);
+                    results.Add(new string[] { url, price, desc });
+                }
+
+                if(driver.FindElements(By.XPath(Dicts.Elements["NextPageButton"])).Count == 0)
+                {
+                    return results;
+                }
+                driver.FindElement(By.XPath(Dicts.Elements["NextPageButton"])).Click();
+            }
+
         }
-       /* static public bool checkIfDateIsGood(SearchParameters searchParameters)
-        {
 
-        }*/
-        
+        static void GetBlacklistXpath(string[] blacklist, out string urlXpath, out string priceXpath)
+        {
+            urlXpath = "//h4[@class=\"css-1g61gc2\"";
+
+            foreach (var word in blacklist)
+            {
+                urlXpath = urlXpath + " and not(contains(text(),\"" + word + "\"))";
+            }
+
+            priceXpath = urlXpath + "]//following::p";
+            urlXpath = urlXpath + "]//following::a";
+
+        }
+
+        static string GetDescription(string url)
+        {
+            IWebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver();
+            driver.Navigate().GoToUrl(url);
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+            string description = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["ResultDescription"])); }).Text;
+            driver.Quit();
+            return description;
+        }
+
+        /* static public bool checkIfDateIsGood(SearchParameters searchParameters)
+         {
+
+         }*/
+
     }
 }

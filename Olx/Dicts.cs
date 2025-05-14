@@ -11,11 +11,11 @@ namespace Olx
         public static Dictionary<string, string> Elements = new Dictionary<string, string>()
         {
             { "CookiesAccept","//button[@id=\"onetrust-accept-btn-handler\"]"},
-            { "Login","//a[@class=\"css-12l1k7f\"]"},
-            { "UsernameInput","//input[@name=\"username\""},
-            { "PasswordInput","//input[@name=\"password\""},
-            { "LoginButton","//button[@type=\"submit\""},
-            { "ResultURL","//a[@class=\"css-1tqlkj0\"]"},
+            { "Login","//a[@data-cy=\"myolx-link\"]"},
+            { "UsernameInput","//input[@name=\"username\"]"},
+            { "PasswordInput","//input[@name=\"password\"]"},
+            { "LoginButton","//button[@type=\"submit\"]"},
+            { "ResultURL","//h4[@class=\"css-1g61gc2\"]/parent::a"},
             { "ResultPrices","//p[@data-testid=\"ad-price\"]"},
             { "ResultConditions","//span[@class=\"css-iudov9\"]"},
             { "ResultDescription","//div[@class=\"19duwlz\"]"},
@@ -24,7 +24,7 @@ namespace Olx
         };
         static public Dictionary<string, string> Pages = new Dictionary<string, string>()
         {
-            { "MainPage","www.olx.pl"},
+            { "MainPage","https://www.olx.pl/"},
         };
         static public Dictionary<string, int> Months = new Dictionary<string, int>()
         {
