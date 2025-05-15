@@ -142,9 +142,15 @@ namespace Olx
 
                 var prices = driver.FindElements(By.XPath(priceXpath));
 
-
+                var dates = driver.FindElements(By.XPath(Dicts.Elements["ResultDate"]));
                 for (int i = 0; i < urls.Count; i++)
                 {
+
+                    if(checkIfDateIsGood(searchParameters, DateOnly.FromDateTime(DateTime.Parse(dates[i].Text))))
+                    {
+                        return results;
+                    }
+
                     string url = urls[i].GetAttribute("href");
                     string price = prices[i].Text;
                     string desc = GetDescription(url);
@@ -155,6 +161,7 @@ namespace Olx
                 {
                     return results;
                 }
+               
                 driver.FindElement(By.XPath(Dicts.Elements["NextPageButton"])).Click();
             }
 
@@ -186,10 +193,28 @@ namespace Olx
         }
 
 
-        /* static public bool checkIfDateIsGood(SearchParameters searchParameters)
-         {
-
-         }*/
+        static public bool checkIfDateIsGood(SearchParameters searchParameters, DateOnly dateOfListing)
+        {
+           if(dateOfListing.Year > searchParameters.OldestDateAllowed.Year)
+            {
+                return false;
+            }
+           else if( dateOfListing.Year) == searchParameters.OldestDateAllowed.Year)
+            {
+                if(dateOfListing.Month > searchParameters.OldestDateAllowed.Month)
+                {
+                    return false;
+                }
+                else if(dateOfListing.Month == searchParameters.OldestDateAllowed.Month)
+                {
+                    if(dateOfListing.Day > searchParameters.OldestDateAllowed.Day)
+                    {
+                       return false;
+                    }
+                }
+            }
+           return true;
+        }
 
     }
 }
