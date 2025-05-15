@@ -25,21 +25,6 @@ namespace Olx
     }
     internal class Helper
     {
-        static public UserParameters InputValuesDebug(out SearchParameters searchParameters)
-        {
-            searchParameters = new SearchParameters() {
-                OldestDateAllowed = new DateTime(2024, 1, 1),
-                MinPrice = 20,
-                MaxPrice = 200,
-                Blacklist = new string[] { "test", "części" }
-            };
-            return new UserParameters()
-            {
-                Login = "fifi.serbin@gmail.com",
-                Password = "Kukuryku83"
-            };
-        }
-
         static public UserParameters InputValues(out SearchParameters searchParameters)
         {
             UserParameters userParameters = new UserParameters();
