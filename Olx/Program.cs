@@ -7,7 +7,7 @@ namespace Olx
         public static void Main(string[] args)
         {
             SearchParameters searchParameters;
-            UserParameters userParameters = Helper.InputValuesDebug(out searchParameters);
+            UserParameters userParameters = Helper.InputValues(out searchParameters);
 
             WebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver();
         
