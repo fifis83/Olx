@@ -19,7 +19,7 @@ namespace Olx
             { "ResultPrices","//p[@data-testid=\"ad-price\"]"},
             { "ResultConditions","//span[@class=\"css-iudov9\"]"},
             { "ResultDescription","//div[@class=\"css-19duwlz\"]"},
-            { "ResultDate","//p[@data-testid=\"location-date\"]"},
+            { "ResultDate","//span[@class='css-pz2ytp']"},
             { "NextPageButton","//a[@data-testid=\"pagination-forward\"]"}
         };
         static public Dictionary<string, string> Pages = new Dictionary<string, string>()
@@ -28,18 +28,18 @@ namespace Olx
         };
         static public Dictionary<string, int> Months = new Dictionary<string, int>()
         {
-            {"styczeń",1 },
-            {"luty", 2 },
-            {"marzec", 3 },
-            {"kwiecień", 4 },
-            {"maj", 5 },
-            {"czerwiec", 6 },
-            {"lipiec", 7 },
-            {"sierpień", 8 },
-            {"wrzesień", 9 },
-            {"październik", 10 },
-            {"listopad", 11 },
-            {"grudzień", 12 }
+            {"stycznia",1 },
+            {"lutego", 2 },
+            {"marzeca", 3 },
+            {"kwiecienia", 4 },
+            {"maja", 5 },
+            {"czerwca", 6 },
+            {"lipca", 7 },
+            {"sierpnia", 8 },
+            {"września", 9 },
+            {"października", 10 },
+            {"listopada", 11 },
+            {"grudnia", 12 }
         };
     }
 }

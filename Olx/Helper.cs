@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NUnit.Framework.Interfaces;
 using OpenQA.Selenium;
 using OpenQA.Selenium.DevTools.V134.Input;
 using OpenQA.Selenium.Support.UI;
@@ -134,24 +135,28 @@ namespace Olx
             GetBlacklistXpath(searchParameters.Blacklist, out urlXpath, out priceXpath);
 
             List<string[]> results = new List<string[]>();
-
+            string dateOfListing = "";
             while (true)
             {
-
+                
                 var urls = wait.Until((d) => { return d.FindElements(By.XPath(urlXpath)); });
 
                 var prices = driver.FindElements(By.XPath(priceXpath));
 
-                var dates = driver.FindElements(By.XPath(Dicts.Elements["ResultDate"]));
+                
+                
+
+                
                 for (int i = 0; i < urls.Count; i++)
                 {
-
-                    if (checkIfDateIsGood(searchParameters, DateOnly.FromDateTime(DateTime.Parse(dates[i].Text))))
+                    string url = urls[i].GetAttribute("href");
+                   /* if (checkIfDateIsGood(searchParameters, GetDate(url)))
                     {
                         return results;
-                    }
+                    }*/
 
-                    string url = urls[i].GetAttribute("href");
+
+                   
                     string price = prices[i].Text;
                     string desc = GetDescription(url);
                     results.Add(new string[] { url, price, desc });
@@ -191,29 +196,58 @@ namespace Olx
             driver.Quit();
             return description;
         }
-
-
-        static public bool checkIfDateIsGood(SearchParameters searchParameters, DateOnly dateOfListing)
+        static string GetDate(string url)
         {
-           if(dateOfListing.Year > searchParameters.OldestDateAllowed.Year)
+            IWebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver();
+            driver.Navigate().GoToUrl(url);
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["CookiesAccept"])); }).Click();
+            string date = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["ResultDate"])); }).Text;
+            driver.Quit();
+            return date;
+        }
+
+        static public bool checkIfDateIsGood(SearchParameters searchParameters, string dateOfListing)
+        {
+            if (dateOfListing.Contains("Dzisiaj"))
             {
                 return false;
             }
-           else if( dateOfListing.Year == searchParameters.OldestDateAllowed.Year)
+            else
             {
-                if(dateOfListing.Month > searchParameters.OldestDateAllowed.Month)
+
+                int Day = Int32.Parse(dateOfListing.Split(' ')[0]);
+
+                string MonthStr = dateOfListing.Split(' ')[1];
+                int Year = Int32.Parse(dateOfListing.Split(' ')[2]);
+
+                int Month = Dicts.Months[MonthStr];
+                if (Year > searchParameters.OldestDateAllowed.Year)
                 {
                     return false;
                 }
-                else if(dateOfListing.Month == searchParameters.OldestDateAllowed.Month)
+
+                else if (Year == searchParameters.OldestDateAllowed.Year)
                 {
-                    if(dateOfListing.Day > searchParameters.OldestDateAllowed.Day)
+
+                    if (Month > searchParameters.OldestDateAllowed.Month)
                     {
-                       return false;
+                        return false;
                     }
+                    else if (Month == searchParameters.OldestDateAllowed.Month)
+                    {
+                        if (Day > searchParameters.OldestDateAllowed.Day)
+                        {
+                            return false;
+                        }
+                    }
+
                 }
+
             }
-           return true;
+
+            return true;
+
         }
 
         static public int getAIChoice(List<string[]> results)
