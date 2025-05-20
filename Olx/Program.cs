@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using OpenQA.Selenium;
 
 namespace Olx
@@ -10,7 +11,7 @@ namespace Olx
             UserParameters userParameters = Helper.InputValues(out searchParameters);
 
             WebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver();
-        
+
             Helper.Login(driver, userParameters);
             var results = Helper.GetResults(driver, searchParameters);
 
@@ -21,6 +22,8 @@ namespace Olx
                 Console.WriteLine("Description: " + result[2]);
                 Console.WriteLine();
             }
+
+
 
             driver.Quit();
         }

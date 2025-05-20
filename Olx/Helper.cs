@@ -124,7 +124,7 @@ namespace Olx
 
         static public List<string[]> GetResults(IWebDriver driver, SearchParameters searchParameters)
         {
-            Console.WriteLine(CreateURL(searchParameters));
+            //Console.WriteLine(CreateURL(searchParameters));
             driver.Navigate().GoToUrl(CreateURL(searchParameters));
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
 
@@ -146,7 +146,7 @@ namespace Olx
                 for (int i = 0; i < urls.Count; i++)
                 {
 
-                    if(checkIfDateIsGood(searchParameters, DateOnly.FromDateTime(DateTime.Parse(dates[i].Text))))
+                    if (checkIfDateIsGood(searchParameters, DateOnly.FromDateTime(DateTime.Parse(dates[i].Text))))
                     {
                         return results;
                     }
@@ -199,7 +199,7 @@ namespace Olx
             {
                 return false;
             }
-           else if( dateOfListing.Year) == searchParameters.OldestDateAllowed.Year)
+           else if( dateOfListing.Year == searchParameters.OldestDateAllowed.Year)
             {
                 if(dateOfListing.Month > searchParameters.OldestDateAllowed.Month)
                 {
@@ -214,6 +214,40 @@ namespace Olx
                 }
             }
            return true;
+        }
+
+        static public int getAIChoice(List<string[]> results)
+        {
+            string argument="";
+            int i = 1;
+
+            foreach (var result in results)
+            {
+                argument += i++ +". "+ result[0] + "; " + result[1] + "; " + result[2] + "\n";
+            }
+
+            var proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "C:/Users/fifis/AppData/Local/Programs/Python/Python313/python.exe",
+                    Arguments = "C:/Users/fifis/dev/python/costam.py "+argument,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+
+            string aiChoice= "0";
+
+            proc.Start();
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                aiChoice = proc.StandardOutput.ReadLine();
+            }
+
+            return int.Parse(aiChoice.Trim());
+
         }
 
     }
