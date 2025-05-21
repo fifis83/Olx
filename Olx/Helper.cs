@@ -14,10 +14,7 @@ namespace Olx
 {
     struct UserParameters
     {
-
         public string Login, Password;
-
-
     }
     struct SearchParameters
     {
@@ -35,7 +32,7 @@ namespace Olx
             Console.WriteLine("Jaka minimalna cena?:");
 
             int minPrice = int.Parse(Console.ReadLine());
-            while (minPrice < 0 && minPrice % 1 != 0)
+            while (minPrice < 0 && minPrice % 1 != 0 )
             {
                 Console.WriteLine("Podaj poprawną minimalną cenę:");
                 minPrice = int.Parse(Console.ReadLine());
@@ -118,7 +115,7 @@ namespace Olx
             input.SendKeys(userParameters.Password);
 
             driver.FindElement(By.XPath(Dicts.Elements["LoginButton"])).Click();
-        
+
             driver.Navigate().GoToUrl(Dicts.Pages["MainPage"]);
             return true;
         }
@@ -131,15 +128,14 @@ namespace Olx
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
 
             //wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["CookiesAccept"])); }).Click();
-            
+
             string urlXpath, priceXpath;
             GetBlacklistXpath(searchParameters.Blacklist, out urlXpath, out priceXpath);
 
             List<string[]> results = new List<string[]>();
-            string dateOfListing = "";
             while (true)
             {
-                
+
                 var urls = wait.Until((d) => { return d.FindElements(By.XPath(urlXpath)); });
 
                 var prices = driver.FindElements(By.XPath(priceXpath));
@@ -147,34 +143,29 @@ namespace Olx
                 for (int i = 0; i < urls.Count; i++)
                 {
                     string url = urls[i].GetAttribute("href");
-                   /* if (checkIfDateIsGood(searchParameters, GetDate(url)))
+
+                    if (checkIfDateIsGood(searchParameters, GetDate(url)))
                     {
                         return results;
-                    }*/
+                    }
 
-
-                   
                     string price = prices[i].Text;
                     string desc = GetDescription(url);
                     results.Add(new string[] { url, price, desc });
                 }
 
-                //if(driver.FindElements(By.XPath(Dicts.Elements["NextPageButton"])).Count == 0)
-                //{
-                //}
-                //driver.FindElement(By.XPath(Dicts.Elements["NextPageButton"])).Click();
+                if (driver.FindElements(By.XPath(Dicts.Elements["NextPageButton"])).Count == 0)
+                {
                     return results;
                 }
-               
                 driver.FindElement(By.XPath(Dicts.Elements["NextPageButton"])).Click();
             }
-
         }
 
         static void GetBlacklistXpath(string[] blacklist, out string urlXpath, out string priceXpath)
         {
             urlXpath = "//h4[@class=\"css-1g61gc2\"";
-            
+
             foreach (var word in blacklist)
             {
                 if (word == "") continue;
@@ -183,7 +174,7 @@ namespace Olx
 
             priceXpath = urlXpath + "]//following::p";
             urlXpath = urlXpath + "]//parent::a";
-            Console.WriteLine(urlXpath+" "+ priceXpath);
+            Console.WriteLine(urlXpath + " " + priceXpath);
         }
 
         static string GetDescription(string url)
@@ -211,6 +202,23 @@ namespace Olx
                     RedirectStandardOutput = true,
                     CreateNoWindow = false,
                 }
+
+            };
+            string output = "";
+
+            proc.Exited += new EventHandler((object sender, System.EventArgs e) =>
+            {
+                output = File.ReadAllText("C:/Users/fifis/dev/python/response.txt");
+            });
+            proc.Start();
+            proc.WaitForExit();
+            if (proc.HasExited)
+            {
+                return output;
+            }
+            return "Error";
+        }
+
         static string GetDate(string url)
         {
             IWebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver();
@@ -222,22 +230,6 @@ namespace Olx
             return date;
         }
 
-            };
-            string output = "";
-
-            proc.Exited += new EventHandler((object sender, System.EventArgs e) => {
-                output = File.ReadAllText("C:/Users/fifis/dev/python/response.txt");    
-            });
-            proc.Start();
-            proc.WaitForExit();
-            if(proc.HasExited)
-            {
-                return output;
-            }
-            return "Error";
-        }
-
-    
 
         static string GetTitleFromURL(string url)
         {
@@ -261,8 +253,9 @@ namespace Olx
 
 
             File.WriteAllText("C:/Users/fifis/dev/python/temp.txt", argument);
-            
+
         }
+
         static public bool checkIfDateIsGood(SearchParameters searchParameters, string dateOfListing)
         {
             if (dateOfListing.Contains("Dzisiaj"))
@@ -308,12 +301,12 @@ namespace Olx
 
         static public int getAIChoice(List<string[]> results)
         {
-            string argument="";
+            string argument = "";
             int i = 1;
 
             foreach (var result in results)
             {
-                argument += i++ +". "+ result[0] + "; " + result[1] + "; " + result[2] + "\n";
+                argument += i++ + ". " + result[0] + "; " + result[1] + "; " + result[2] + "\n";
             }
 
             var proc = new Process
@@ -321,14 +314,14 @@ namespace Olx
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "C:/Users/fifis/AppData/Local/Programs/Python/Python313/python.exe",
-                    Arguments = "C:/Users/fifis/dev/python/costam.py "+argument,
+                    Arguments = "C:/Users/fifis/dev/python/costam.py " + argument,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
                 }
             };
 
-            string aiChoice= "0";
+            string aiChoice = "0";
 
             proc.Start();
             while (!proc.StandardOutput.EndOfStream)

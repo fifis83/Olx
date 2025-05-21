@@ -9,7 +9,7 @@ namespace Olx
         public static void Main(string[] args)
         {
             SearchParameters searchParameters;
-            UserParameters userParameters = Costam.InputValues(out searchParameters);
+            UserParameters userParameters = Helper.InputValues(out searchParameters);
             var options = new ChromeOptions();
             options.AddArgument("--headless=new");
             WebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver(options);
