@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework.Interfaces;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.DevTools.V134.Input;
 using OpenQA.Selenium.Support.UI;
 
@@ -57,7 +58,7 @@ namespace Olx
             string[] blacklist = Console.ReadLine().Split(',');
             searchParameters.Blacklist = blacklist;
 
-
+            GetBlacklistXpath(blacklist, out string urlXpath, out string priceXpath);
             Console.WriteLine("Jaka najstarsza data? ");
             Console.WriteLine("Podaj rok:");
             int year;
@@ -143,10 +144,6 @@ namespace Olx
 
                 var prices = driver.FindElements(By.XPath(priceXpath));
 
-                
-                
-
-                
                 for (int i = 0; i < urls.Count; i++)
                 {
                     string url = urls[i].GetAttribute("href");
@@ -162,8 +159,10 @@ namespace Olx
                     results.Add(new string[] { url, price, desc });
                 }
 
-                if(driver.FindElements(By.XPath(Dicts.Elements["NextPageButton"])).Count == 0)
-                {
+                //if(driver.FindElements(By.XPath(Dicts.Elements["NextPageButton"])).Count == 0)
+                //{
+                //}
+                //driver.FindElement(By.XPath(Dicts.Elements["NextPageButton"])).Click();
                     return results;
                 }
                
@@ -175,20 +174,23 @@ namespace Olx
         static void GetBlacklistXpath(string[] blacklist, out string urlXpath, out string priceXpath)
         {
             urlXpath = "//h4[@class=\"css-1g61gc2\"";
-
+            
             foreach (var word in blacklist)
             {
+                if (word == "") continue;
                 urlXpath = urlXpath + " and not(contains(text(),\"" + word + "\"))";
             }
 
             priceXpath = urlXpath + "]//following::p";
             urlXpath = urlXpath + "]//parent::a";
-
+            Console.WriteLine(urlXpath+" "+ priceXpath);
         }
 
         static string GetDescription(string url)
         {
-            IWebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver();
+            var options = new ChromeOptions();
+            options.AddArgument("--headless=new");
+            IWebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver(options);
             driver.Navigate().GoToUrl(url);
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["CookiesAccept"])); }).Click();
@@ -196,6 +198,19 @@ namespace Olx
             driver.Quit();
             return description;
         }
+
+        static public string GenerateAIResponse()
+        {
+            var proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "C:/Users/fifis/AppData/Local/Programs/Python/Python313/python.exe",
+                    Arguments = "C:/Users/fifis/dev/python/costam.py",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = false,
+                }
         static string GetDate(string url)
         {
             IWebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver();
@@ -207,6 +222,47 @@ namespace Olx
             return date;
         }
 
+            };
+            string output = "";
+
+            proc.Exited += new EventHandler((object sender, System.EventArgs e) => {
+                output = File.ReadAllText("C:/Users/fifis/dev/python/response.txt");    
+            });
+            proc.Start();
+            proc.WaitForExit();
+            if(proc.HasExited)
+            {
+                return output;
+            }
+            return "Error";
+        }
+
+    
+
+        static string GetTitleFromURL(string url)
+        {
+            string title = url.Replace("https://www.olx.pl/d/oferta/", "");
+            int index = title.IndexOf("-CID");
+            if (index >= 0)
+                title = title.Substring(0, index);
+            title = title.Replace("-", " ");
+            return title;
+        }
+
+        static public void CreateTempResultsFile(List<string[]> results)
+        {
+            string argument = "";
+            int i = 1;
+
+            foreach (var result in results)
+            {
+                argument += i++ + ". " + GetTitleFromURL(result[0]) + "; " + result[1] + "; " + result[2] + "\n";
+            }
+
+
+            File.WriteAllText("C:/Users/fifis/dev/python/temp.txt", argument);
+            
+        }
         static public bool checkIfDateIsGood(SearchParameters searchParameters, string dateOfListing)
         {
             if (dateOfListing.Contains("Dzisiaj"))

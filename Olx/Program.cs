@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 
 namespace Olx
 {
@@ -8,20 +9,15 @@ namespace Olx
         public static void Main(string[] args)
         {
             SearchParameters searchParameters;
-            UserParameters userParameters = Helper.InputValues(out searchParameters);
-
-            WebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver();
+            UserParameters userParameters = Costam.InputValues(out searchParameters);
+            var options = new ChromeOptions();
+            options.AddArgument("--headless=new");
+            WebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver(options);
 
             Helper.Login(driver, userParameters);
-            var results = Helper.GetResults(driver, searchParameters);
-
-            foreach (var result in results)
-            {
-                Console.WriteLine("URL: " + result[0]);
-                Console.WriteLine("Price: " + result[1]);
-                Console.WriteLine("Description: " + result[2]);
-                Console.WriteLine();
-            }
+            Helper.CreateTempResultsFile(Helper.GetResults(driver, searchParameters));
+            var AIResponse = Helper.GenerateAIResponse();
+            Console.WriteLine(AIResponse);
 
 
 
