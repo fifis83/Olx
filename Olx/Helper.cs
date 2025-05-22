@@ -331,6 +331,21 @@ namespace Olx
 
             return int.Parse(aiChoice.Trim());
 
+
+
+        }
+
+        static public followBestDeal(string url, IWebDriver driver)
+        {
+            driver.Navigate().GoToUrl(url);
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            wait.Until((d) => { return d.FindElement(By.XPath("//button[@id=\"onetrust-accept-btn-handler\"]")); }).Click();
+
+            WebElement ele = (WebElement)driver.FindElement(By.XPath("//div[@class = 'css-1lx5q7o']"));
+            Actions action = new Actions(driver);
+            action.MoveToElement(ele).Perform();
+            action.Click(ele).Perform();
+
         }
 
     }
