@@ -9,17 +9,16 @@ namespace Olx
         public static void Main(string[] args)
         {
             SearchParameters searchParameters;
-            UserParameters userParameters = Helper.InputValues(out searchParameters);
+            UserParameters userParameters = Costam.InputValuesDebug(out searchParameters);
             var options = new ChromeOptions();
             options.AddArgument("--headless=new");
-            WebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver(options);
+            options.AddArgument("--no-sandbox");
+            WebDriver driver = new ChromeDriver(options);
 
             Helper.Login(driver, userParameters);
             Helper.CreateTempResultsFile(Helper.GetResults(driver, searchParameters));
             var AIResponse = Helper.GenerateAIResponse();
             Console.WriteLine(AIResponse);
-
-
 
             driver.Quit();
         }

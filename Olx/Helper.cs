@@ -26,6 +26,9 @@ namespace Olx
     {
         static public UserParameters InputValues(out SearchParameters searchParameters)
         {
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.InputEncoding = Encoding.UTF8;
+
             UserParameters userParameters = new UserParameters();
             searchParameters = new SearchParameters();
             Console.WriteLine("Wyszukiwarka Thinkpad");
@@ -95,13 +98,13 @@ namespace Olx
 
         static public string CreateURL(SearchParameters searchParams)
         {
-            string url = "https://www.olx.pl/oferty/q-thinkpad-t61/?search[order]=created_at:desc&search[filter_float_price:from]=" + searchParams.MinPrice + "&search[filter_float_price:to]=" + searchParams.MaxPrice;
+            string url = Dicts.Pages["SearchStart"] + searchParams.MinPrice + "&search[filter_float_price:to]=" + searchParams.MaxPrice;
             return url;
         }
 
         static public bool Login(IWebDriver driver, UserParameters userParameters)
         {
-            driver.Navigate().GoToUrl("https://login.olx.pl/?cc=eyJjYyI6MSwiZ3JvdXBzIjoiQzAwMDE6MSxDMDAwMjoxLEMwMDAzOjEsQzAwMDQ6MSxnYWQ6MSJ9&client_id=6j7elk01p32o648o1io8lvhhab&code_challenge=kchix2JsbwlYXfl0z3kphmUHfpmKwFtkIj3sc2LBoOA&code_challenge_method=S256&lang=pl&redirect_uri=https%3A%2F%2Fwww.olx.pl%2Fd%2Fcallback%2F&st=eyJzbCI6IjE5NmQwMDYxZmU3eDY0M2MwMDYzIiwicyI6IjE5NmQwMDYxZmU3eDY0M2MwMDYzIn0%3D&state=SVp0YkRBaVZrMnVjUXVJOXNYeVUyNmJmYzFhbFRUc1ppREdFV0tYLVFadg%3D%3D");
+            driver.Navigate().GoToUrl(Dicts.Pages["Login"]);
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
 
             //wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["CookiesAccept"])); }).Click();
@@ -144,13 +147,16 @@ namespace Olx
                 {
                     string url = urls[i].GetAttribute("href");
 
-                    if (checkIfDateIsGood(searchParameters, GetDate(url)))
+                    (string, string) descAndDate = GetDescriptionAndDate(url);
+                    string desc = descAndDate.Item1;
+                    string date = descAndDate.Item2;
+
+                    if (checkIfDateIsGood(searchParameters, date))
                     {
                         return results;
                     }
 
                     string price = prices[i].Text;
-                    string desc = GetDescription(url);
                     results.Add(new string[] { url, price, desc });
                 }
 
@@ -177,17 +183,22 @@ namespace Olx
             Console.WriteLine(urlXpath + " " + priceXpath);
         }
 
-        static string GetDescription(string url)
+        static (string,string) GetDescriptionAndDate(string url)
         {
             var options = new ChromeOptions();
             options.AddArgument("--headless=new");
             IWebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver(options);
-            driver.Navigate().GoToUrl(url);
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+
+            driver.Navigate().GoToUrl(url);
+
             wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["CookiesAccept"])); }).Click();
             string description = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["ResultDescription"])); }).Text;
+            string date = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["ResultDate"])); }).Text;
+
             driver.Quit();
-            return description;
+
+            return (description,date);
         }
 
         static public string GenerateAIResponse()
@@ -204,13 +215,14 @@ namespace Olx
                 }
 
             };
-            string output = "";
-
-            proc.Exited += new EventHandler((object sender, System.EventArgs e) =>
-            {
-                output = File.ReadAllText("C:/Users/fifis/dev/python/response.txt");
-            });
             proc.Start();
+
+            string output = proc.StandardOutput.ReadToEnd();
+            Console.WriteLine(output);
+            //proc.Exited += new EventHandler((object sender, System.EventArgs e) =>
+            //{
+            //    output = File.ReadAllText("C:/Users/fifis/dev/python/response.txt");
+            //});
             proc.WaitForExit();
             if (proc.HasExited)
             {
@@ -218,18 +230,6 @@ namespace Olx
             }
             return "Error";
         }
-
-        static string GetDate(string url)
-        {
-            IWebDriver driver = new OpenQA.Selenium.Chrome.ChromeDriver();
-            driver.Navigate().GoToUrl(url);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["CookiesAccept"])); }).Click();
-            string date = wait.Until((d) => { return d.FindElement(By.XPath(Dicts.Elements["ResultDate"])); }).Text;
-            driver.Quit();
-            return date;
-        }
-
 
         static string GetTitleFromURL(string url)
         {
@@ -258,7 +258,7 @@ namespace Olx
 
         static public bool checkIfDateIsGood(SearchParameters searchParameters, string dateOfListing)
         {
-            if (dateOfListing.Contains("Dzisiaj"))
+            if (dateOfListing.Contains("Dzisiaj") || dateOfListing.Contains("dzisiaj"))
             {
                 return false;
             }
